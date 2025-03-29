@@ -1,6 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
   const copyButton = document.getElementById('copyButton');
   const statusDiv = document.getElementById('status');
+  const formatToggle = document.getElementById('formatToggle');
+  
+  // Load saved toggle state from storage
+  chrome.storage.sync.get('includeFormatting', function(data) {
+    formatToggle.checked = data.includeFormatting !== undefined ? data.includeFormatting : false;
+  });
+  
+  // Save toggle state when changed
+  formatToggle.addEventListener('change', function() {
+    chrome.storage.sync.set({
+      includeFormatting: formatToggle.checked
+    });
+  });
   
   // Set status message with optional auto-clear
   function setStatus(message, isError = false, autoClear = true) {
@@ -50,7 +63,10 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Send message to content script with timeout handling
       const messagePromise = new Promise((resolve, reject) => {
-        chrome.tabs.sendMessage(tab.id, { action: 'copyConversation' }, (response) => {
+        chrome.tabs.sendMessage(tab.id, { 
+          action: 'copyConversation',
+          includeFormatting: formatToggle.checked
+        }, (response) => {
           if (chrome.runtime.lastError) {
             reject(new Error(chrome.runtime.lastError.message));
             return;
