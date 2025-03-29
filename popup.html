@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ChatGPT Conversation Copier</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f8f9fa;
+    }
+    h2 {
+      color: #10a37f;
+      margin-top: 0;
+      text-align: center;
+      font-size: 18px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #10a37f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 10px;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #0d8a6c;
+    }
+    button:disabled {
+      background-color: #97c7bd;
+      cursor: not-allowed;
+    }
+    #status {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      min-height: 20px;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    #status.success {
+      color: #0d8a6c;
+      background-color: #e7f6f3;
+    }
+    #status.error {
+      color: #e53935;
+      background-color: #fdecea;
+    }
+    .footer {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <h2>ChatGPT Conversation Copier</h2>
+  <button id="copyButton">Copy Conversation</button>
+  <div id="status"></div>
+  <div class="footer">
+    Copy ChatGPT conversations to clipboard in a formatted way
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
