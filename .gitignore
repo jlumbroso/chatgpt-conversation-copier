@@ -1,0 +1,7 @@
+# macOS metadata
+.DS_Store
+
+# Temporary files
+file*.html
+file*.txt
+test-*.*
