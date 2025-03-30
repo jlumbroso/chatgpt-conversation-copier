@@ -5,8 +5,8 @@ console.log("ChatGPT Conversation Copier content script loaded!");
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action === 'copyConversation') {
     try {
-      // Extract the conversation based on toggle state
-      const formattedText = extractConversation(request.includeFormatting);
+      // Extract the conversation based on toggle states
+      const formattedText = extractConversation(request.includeFormatting, request.useSeparatorFrames);
       
       // Copy to clipboard
       const textArea = document.createElement('textarea');
@@ -119,8 +119,11 @@ function extractTextWithFormatting(element, preserveFormatting = false) {
   return result.trim();
 }
 
+// Define separator template
+const SEPARATOR_LINE = "================================";
+
 // Extract the conversation with or without formatting
-function extractConversation(preserveFormatting = false) {
+function extractConversation(preserveFormatting = false, useSeparatorFrames = true) {
   let conversation = '';
   
   // Find all conversation turns/articles
@@ -184,8 +187,19 @@ function extractConversation(preserveFormatting = false) {
       
       // Only add non-empty messages
       if (messageContent.trim()) {
-        conversation += `${role}: ${messageContent}\n\n`;
+        if (useSeparatorFrames) {
+          // Add with separator frames
+          conversation += `${SEPARATOR_LINE}\n${role}:\n${messageContent}\n`;
+        } else {
+          // Add with inline role (no frames)
+          conversation += `${role}: ${messageContent}\n\n`;
+        }
       }
+    }
+    
+    // Add final separator if using frames
+    if (useSeparatorFrames && conversation.trim()) {
+      conversation += SEPARATOR_LINE;
     }
   } else {
     // Fallback method: look for message elements directly
@@ -215,8 +229,19 @@ function extractConversation(preserveFormatting = false) {
       
       // Only add non-empty messages
       if (messageContent.trim()) {
-        conversation += `${role}: ${messageContent}\n\n`;
+        if (useSeparatorFrames) {
+          // Add with separator frames
+          conversation += `${SEPARATOR_LINE}\n${role}:\n${messageContent}\n`;
+        } else {
+          // Add with inline role (no frames)
+          conversation += `${role}: ${messageContent}\n\n`;
+        }
       }
+    }
+    
+    // Add final separator if using frames
+    if (useSeparatorFrames && conversation.trim()) {
+      conversation += SEPARATOR_LINE;
     }
   }
   

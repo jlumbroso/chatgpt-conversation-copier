@@ -2,16 +2,24 @@ document.addEventListener('DOMContentLoaded', function() {
   const copyButton = document.getElementById('copyButton');
   const statusDiv = document.getElementById('status');
   const formatToggle = document.getElementById('formatToggle');
+  const frameToggle = document.getElementById('frameToggle');
   
-  // Load saved toggle state from storage
-  chrome.storage.sync.get('includeFormatting', function(data) {
+  // Load saved toggle states from storage
+  chrome.storage.sync.get(['includeFormatting', 'useSeparatorFrames'], function(data) {
     formatToggle.checked = data.includeFormatting !== undefined ? data.includeFormatting : false;
+    frameToggle.checked = data.useSeparatorFrames !== undefined ? data.useSeparatorFrames : true;
   });
   
-  // Save toggle state when changed
+  // Save toggle states when changed
   formatToggle.addEventListener('change', function() {
     chrome.storage.sync.set({
       includeFormatting: formatToggle.checked
+    });
+  });
+  
+  frameToggle.addEventListener('change', function() {
+    chrome.storage.sync.set({
+      useSeparatorFrames: frameToggle.checked
     });
   });
   
@@ -65,7 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const messagePromise = new Promise((resolve, reject) => {
         chrome.tabs.sendMessage(tab.id, { 
           action: 'copyConversation',
-          includeFormatting: formatToggle.checked
+          includeFormatting: formatToggle.checked,
+          useSeparatorFrames: frameToggle.checked
         }, (response) => {
           if (chrome.runtime.lastError) {
             reject(new Error(chrome.runtime.lastError.message));

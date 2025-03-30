@@ -108,15 +108,32 @@
     input:checked + .toggle-slider:before {
       transform: translateX(26px);
     }
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #10a37f;
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <h2>ChatGPT Conversation Copier</h2>
   
+  <div class="section-title">Formatting Options</div>
+  
   <div class="toggle-container">
     <span class="toggle-label">Include Markdown formatting</span>
     <label class="toggle-switch">
       <input type="checkbox" id="formatToggle">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  
+  <div class="toggle-container">
+    <span class="toggle-label">Use separator frames</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="frameToggle">
       <span class="toggle-slider"></span>
     </label>
   </div>
