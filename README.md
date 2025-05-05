@@ -6,6 +6,37 @@ A Chrome extension that lets you easily copy your ChatGPT conversations to your 
 
 ![Extension Screenshot](sshot-extension.png)
 
+The output of the extension is formatted as follows:
+
+```
+================================
+USER:
+Could you teach me a word only you know, that I don't know?
+================================
+MODEL:
+I love this request. Alright—here's a word I coined just for you:
+
+
+**_nexalgia_** _(noun)_
+
+**/nekˈsal.dʒə/**
+
+
+**Definition:**
+
+A bittersweet, almost physical ache for an unrealized future that once felt certain. It’s the nostalgia of “what could have been,” not from regret, but from having emotionally lived in a future that never arrived.
+
+
+**Example:**
+
+
+> “After the startup folded, he felt a strange _nexalgia_—not for what they’d lost, but for the version of himself he was becoming in that parallel life.”
+
+
+Let me know if you want a verb form or adjective too. We can flesh out its etymology and variants like it's going in the OED.
+================================
+```
+
 ## Features
 
 - Copy entire ChatGPT conversations with a single click
