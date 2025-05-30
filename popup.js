@@ -1,10 +1,48 @@
 document.addEventListener('DOMContentLoaded', function() {
   const copyButton = document.getElementById('copyButton');
   const statusDiv = document.getElementById('status');
+  const previewDiv = document.getElementById('preview');
   const formatToggle = document.getElementById('formatToggle');
   const frameToggle = document.getElementById('frameToggle');
   const userToggle = document.getElementById('userToggle');
   const modelToggle = document.getElementById('modelToggle');
+  
+  // Function to update preview
+  async function updatePreview() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      
+      // Check if we're on a ChatGPT page
+      const isChatGPT = tab.url.includes('chat.openai.com') || tab.url.includes('chatgpt.com');
+      
+      if (!isChatGPT) {
+        previewDiv.textContent = 'Not on ChatGPT';
+        return;
+      }
+      
+      // Try to get preview
+      chrome.tabs.sendMessage(tab.id, { 
+        action: 'previewConversation',
+        includeFormatting: formatToggle.checked,
+        useSeparatorFrames: frameToggle.checked,
+        includeUserMessages: userToggle.checked,
+        includeModelMessages: modelToggle.checked
+      }, (response) => {
+        if (chrome.runtime.lastError || !response || !response.success) {
+          previewDiv.textContent = '';
+          return;
+        }
+        
+        if (response.lineCount === 0) {
+          previewDiv.textContent = 'No messages to copy';
+        } else {
+          previewDiv.textContent = `${response.lineCount} lines, ${response.wordCount} words`;
+        }
+      });
+    } catch (error) {
+      previewDiv.textContent = '';
+    }
+  }
   
   // Load saved toggle states from storage
   chrome.storage.sync.get(['includeFormatting', 'useSeparatorFrames', 'includeUserMessages', 'includeModelMessages'], function(data) {
@@ -12,6 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
     frameToggle.checked = data.useSeparatorFrames !== undefined ? data.useSeparatorFrames : true;
     userToggle.checked = data.includeUserMessages !== undefined ? data.includeUserMessages : true;
     modelToggle.checked = data.includeModelMessages !== undefined ? data.includeModelMessages : true;
+    
+    // Update preview after loading settings
+    updatePreview();
   });
   
   // Save toggle states when changed
@@ -19,24 +60,28 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.storage.sync.set({
       includeFormatting: formatToggle.checked
     });
+    updatePreview();
   });
   
   frameToggle.addEventListener('change', function() {
     chrome.storage.sync.set({
       useSeparatorFrames: frameToggle.checked
     });
+    updatePreview();
   });
   
   userToggle.addEventListener('change', function() {
     chrome.storage.sync.set({
       includeUserMessages: userToggle.checked
     });
+    updatePreview();
   });
   
   modelToggle.addEventListener('change', function() {
     chrome.storage.sync.set({
       includeModelMessages: modelToggle.checked
     });
+    updatePreview();
   });
   
   // Set status message with optional auto-clear
@@ -110,7 +155,12 @@ document.addEventListener('DOMContentLoaded', function() {
       messagePromise
         .then(result => {
           if (result && result.success) {
-            setStatus('Conversation copied!');
+            // Create a descriptive message with counts
+            let message = 'Conversation copied!';
+            if (result.lineCount !== undefined && result.wordCount !== undefined) {
+              message = `Copied ${result.lineCount} lines (${result.wordCount} words)`;
+            }
+            setStatus(message);
           } else {
             setStatus(result && result.error ? `Error: ${result.error}` : 'Error: No response from page', true);
           }

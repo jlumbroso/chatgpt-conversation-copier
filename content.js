@@ -13,6 +13,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         request.includeModelMessages
       );
       
+      // Count lines and words
+      const lineCount = formattedText ? formattedText.split('\n').length : 0;
+      const wordCount = formattedText ? formattedText.split(/\s+/).filter(word => word.length > 0).length : 0;
+      
       // Copy to clipboard
       const textArea = document.createElement('textarea');
       textArea.value = formattedText;
@@ -21,9 +25,36 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       document.execCommand('copy');
       document.body.removeChild(textArea);
       
-      sendResponse({success: true});
+      sendResponse({
+        success: true,
+        lineCount: lineCount,
+        wordCount: wordCount
+      });
     } catch (error) {
       console.error('Error copying conversation:', error);
+      sendResponse({success: false, error: error.message});
+    }
+  } else if (request.action === 'previewConversation') {
+    try {
+      // Extract the conversation based on toggle states
+      const formattedText = extractConversation(
+        request.includeFormatting, 
+        request.useSeparatorFrames,
+        request.includeUserMessages,
+        request.includeModelMessages
+      );
+      
+      // Count lines and words
+      const lineCount = formattedText ? formattedText.split('\n').length : 0;
+      const wordCount = formattedText ? formattedText.split(/\s+/).filter(word => word.length > 0).length : 0;
+      
+      sendResponse({
+        success: true,
+        lineCount: lineCount,
+        wordCount: wordCount
+      });
+    } catch (error) {
+      console.error('Error previewing conversation:', error);
       sendResponse({success: false, error: error.message});
     }
   }

@@ -50,6 +50,9 @@ Let me know if you want a verb form or adjective too. We can flesh out its etymo
   - Filter to include only USER messages
   - Filter to include only MODEL messages
   - Both toggles are enabled by default
+- **Preview & Count (NEW):**
+  - Live preview showing line and word count before copying
+  - Success notification displays exact count of copied content
 
 ## Installation
 
