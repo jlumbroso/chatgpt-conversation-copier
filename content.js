@@ -6,7 +6,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action === 'copyConversation') {
     try {
       // Extract the conversation based on toggle states
-      const formattedText = extractConversation(request.includeFormatting, request.useSeparatorFrames);
+      const formattedText = extractConversation(
+        request.includeFormatting, 
+        request.useSeparatorFrames,
+        request.includeUserMessages,
+        request.includeModelMessages
+      );
       
       // Copy to clipboard
       const textArea = document.createElement('textarea');
@@ -123,27 +128,37 @@ function extractTextWithFormatting(element, preserveFormatting = false) {
 const SEPARATOR_LINE = "================================";
 
 // Extract the conversation with or without formatting
-function extractConversation(preserveFormatting = false, useSeparatorFrames = true) {
+function extractConversation(preserveFormatting = false, useSeparatorFrames = true, includeUserMessages = true, includeModelMessages = true) {
   let conversation = '';
   
   // Find all conversation turns/articles
   const conversationTurns = document.querySelectorAll('article[data-testid^="conversation-turn"]');
   
   if (conversationTurns.length > 0) {
+    // New structure with data-testid attributes
     for (const turn of conversationTurns) {
-      // Determine the role based on the article or contained message elements
-      let role;
+      const testId = turn.getAttribute('data-testid');
+      let role = '';
       
-      if (turn.getAttribute('data-testid') === 'conversation-turn-user') {
+      // Skip if neither user nor model messages should be included
+      if (!includeUserMessages && !includeModelMessages) {
+        continue;
+      }
+      
+      // Determine the role and check if we should include this message
+      if (testId === 'conversation-turn-user' || testId.includes('user')) {
+        if (!includeUserMessages) continue;
         role = 'USER';
+      } else if (testId === 'conversation-turn-model' || testId.includes('model') || testId.includes('assistant')) {
+        if (!includeModelMessages) continue;
+        role = 'MODEL';
       } else {
-        // Look for a message element with role attribute
-        const messageElement = turn.querySelector('[data-message-author-role]');
-        if (messageElement) {
-          const authorRole = messageElement.getAttribute('data-message-author-role');
-          role = authorRole === 'user' ? 'USER' : 'MODEL';
+        // Check for role attributes as fallback
+        if (isUserMessage(turn)) {
+          if (!includeUserMessages) continue;
+          role = 'USER';
         } else {
-          // Default to MODEL if we can't determine
+          if (!includeModelMessages) continue;
           role = 'MODEL';
         }
       }
@@ -206,7 +221,13 @@ function extractConversation(preserveFormatting = false, useSeparatorFrames = tr
     const messageElements = document.querySelectorAll('[data-message-author-role]');
     
     for (const element of messageElements) {
-      const role = element.getAttribute('data-message-author-role') === 'user' ? 'USER' : 'MODEL';
+      const roleAttr = element.getAttribute('data-message-author-role');
+      
+      // Skip based on filters
+      if (roleAttr === 'user' && !includeUserMessages) continue;
+      if (roleAttr !== 'user' && !includeModelMessages) continue;
+      
+      const role = roleAttr === 'user' ? 'USER' : 'MODEL';
       
       // Look for content in markdown container first
       const markdownDiv = element.querySelector('.markdown');

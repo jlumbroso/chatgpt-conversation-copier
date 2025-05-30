@@ -3,11 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const statusDiv = document.getElementById('status');
   const formatToggle = document.getElementById('formatToggle');
   const frameToggle = document.getElementById('frameToggle');
+  const userToggle = document.getElementById('userToggle');
+  const modelToggle = document.getElementById('modelToggle');
   
   // Load saved toggle states from storage
-  chrome.storage.sync.get(['includeFormatting', 'useSeparatorFrames'], function(data) {
+  chrome.storage.sync.get(['includeFormatting', 'useSeparatorFrames', 'includeUserMessages', 'includeModelMessages'], function(data) {
     formatToggle.checked = data.includeFormatting !== undefined ? data.includeFormatting : false;
     frameToggle.checked = data.useSeparatorFrames !== undefined ? data.useSeparatorFrames : true;
+    userToggle.checked = data.includeUserMessages !== undefined ? data.includeUserMessages : true;
+    modelToggle.checked = data.includeModelMessages !== undefined ? data.includeModelMessages : true;
   });
   
   // Save toggle states when changed
@@ -20,6 +24,18 @@ document.addEventListener('DOMContentLoaded', function() {
   frameToggle.addEventListener('change', function() {
     chrome.storage.sync.set({
       useSeparatorFrames: frameToggle.checked
+    });
+  });
+  
+  userToggle.addEventListener('change', function() {
+    chrome.storage.sync.set({
+      includeUserMessages: userToggle.checked
+    });
+  });
+  
+  modelToggle.addEventListener('change', function() {
+    chrome.storage.sync.set({
+      includeModelMessages: modelToggle.checked
     });
   });
   
@@ -74,7 +90,9 @@ document.addEventListener('DOMContentLoaded', function() {
         chrome.tabs.sendMessage(tab.id, { 
           action: 'copyConversation',
           includeFormatting: formatToggle.checked,
-          useSeparatorFrames: frameToggle.checked
+          useSeparatorFrames: frameToggle.checked,
+          includeUserMessages: userToggle.checked,
+          includeModelMessages: modelToggle.checked
         }, (response) => {
           if (chrome.runtime.lastError) {
             reject(new Error(chrome.runtime.lastError.message));

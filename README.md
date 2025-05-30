@@ -43,6 +43,13 @@ Let me know if you want a verb form or adjective too. We can flesh out its etymo
 - Clear formatting that distinguishes between USER and MODEL messages
 - Easy-to-use popup interface
 - Works on both chat.openai.com and chatgpt.com
+- **Formatting Options:**
+  - Toggle Markdown formatting preservation
+  - Choose between separator frames or inline role labels
+- **Message Filters (NEW):**
+  - Filter to include only USER messages
+  - Filter to include only MODEL messages
+  - Both toggles are enabled by default
 
 ## Installation
 
